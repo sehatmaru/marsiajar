@@ -1,6 +1,7 @@
 export class LoginRequestModel {
     public email = ''
     public password = ''
+    public type = ''
 }
 
 export class LoginResponseModel {
@@ -14,9 +15,9 @@ export class LoginResponseModel {
 
 export class RegisterRequestModel {
     public password = ''
-    public username = ''
-    public fullname = ''
     public email = ''
+    public firstName = ''
+    public lastName = ''
 }
 
 export class RegisterResponseModel {

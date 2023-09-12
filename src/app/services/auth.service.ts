@@ -13,7 +13,7 @@ export class AuthService {
   constructor(private commonApi: CommonService) { }
 
   doLogin(bodyRequest: LoginRequestModel): Observable<CommonResponsei<LoginResponseModel>> {
-    return this.commonApi.post(`${this.root}/login`, bodyRequest) as Observable<any>;
+    return this.commonApi.post(`${this.root}/login/consumer`, bodyRequest) as Observable<any>;
   }
 
   doRegister(bodyRequest: RegisterRequestModel): Observable<CommonResponsei<RegisterResponseModel>> {
