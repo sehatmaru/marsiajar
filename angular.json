@@ -89,6 +89,9 @@
               "browserTarget": "coreui-free-angular-admin-template:build:development"
             }
           },
+          "options": {
+            "port": 4800
+          },
           "defaultConfiguration": "development"
         },
         "extract-i18n": {
