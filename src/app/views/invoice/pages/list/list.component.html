@@ -1,0 +1,200 @@
+<div style="margin-bottom: 10px;">
+    <c-card>
+        <c-card-header>Filter Invoice Data</c-card-header>
+        <c-card-body>
+            <form cForm cRow [formGroup]="searchForm" novalidate [gutter]="3">
+                <c-col [md]="4" *ngIf="searchForm.controls['invoiceId'] as ctrl">
+                    <input cFormControl formControlName="invoiceId" placeholder="Invoice ID" id="invoiceId" type="text"/>
+                </c-col>
+                <c-col [md]="4" *ngIf="searchForm.controls['customerName'] as ctrl">
+                    <input cFormControl formControlName="customerName" placeholder="Customer Name" id="customerName" type="text"/>
+                </c-col>
+                <c-col [md]="4" *ngIf="searchForm.controls['status'] as ctrl">
+                    <select cSelect formControlName="status" id="status">
+                        <option [defaultSelected]="true" value="">Status</option>
+                        <option value="paid">PAID</option>
+                        <option value="unpaid">UNPAID</option>
+                        <option value="pending">PENDING</option>
+                      </select>
+                </c-col>
+                <c-col [md]="4" *ngIf="searchForm.controls['category'] as ctrl">
+                    <select cSelect formControlName="category" id="category">
+                        <option [defaultSelected]="true" value="">Category</option>
+                        <option value="webinar">Webinar</option>
+                        <option value="course">Course</option>
+                    </select>
+                </c-col>
+            </form>
+        </c-card-body>
+        <c-card-footer style="display: flex; justify-content: space-between;">
+            <p></p>
+            <div class="d-grid gap-2 d-md-flex">
+                <button cButton (click)="reset('search');" color="secondary" variant="outline" [disabled]="!searchFormSubmitted || isLoading">Clear</button>
+                <button cButton (click)="getList(); searchFormSubmitted = true" [disabled]="isLoading">Filter Data</button>
+            </div>
+        </c-card-footer>
+    </c-card>
+</div>
+<div>
+    <p-table
+        [value]="invoices"
+        [paginator]="true"
+        [rows]="10"
+        [loading]="isLoading"
+        [showCurrentPageReport]="true"
+        [tableStyle]="{ 'min-width': '50rem' }"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+        [rowsPerPageOptions]="[10, 25, 50]"
+    >
+        <ng-template pTemplate="header">
+            <tr>
+                <th>Invoice ID</th>
+                <th>Customer Name</th>
+                <th>Status</th>
+                <th>Amount</th>
+                <th>Category</th>
+                <th>Create Time</th>
+                <th style="width:15%"></th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-invoice>
+            <tr>
+                <td>{{ invoice.invoiceId }}</td>
+                <td>{{ invoice.consumerName }}</td>
+                <td>
+                    <c-badge *ngIf="invoice.invoiceStatus === 'PAID'" color="success">{{ invoice.invoiceStatus }}</c-badge>
+                    <c-badge *ngIf="invoice.invoiceStatus !== 'PAID'" color="secondary">{{ invoice.invoiceStatus }}</c-badge>
+                </td>
+                <td>{{ invoice.totalAmount | currency:'IDR ':'symbol':'3.0' }}</td>
+                <td>{{ invoice.invoiceType }}</td>
+                <td>{{ invoice.createdAt | date }}</td>
+                <td>
+                    <c-button-group role="group">
+                        <button cButton (click)="openModal('update', invoice)"
+                            cTooltip="Update" cTooltipTrigger="hover"
+                            color="primary" variant="outline" disabled>
+                            <svg [cIcon]="icons.cilPencil"
+                                title="Create"></svg>
+                        </button>
+                        <button cButton (click)="openModal('detail')" 
+                            cTooltip="Detail" cTooltipTrigger="hover"
+                            color="info" variant="outline">
+                            <svg [cIcon]="icons.cilCursor"
+                                title="Detail"></svg>
+                        </button>
+                        <button cButton (click)="openModal('delete', invoice)"
+                            cTooltip="Delete" cTooltipTrigger="hover"
+                            color="danger" variant="outline" disabled>
+                            <svg [cIcon]="icons.cilTrash"
+                                title="Delete"></svg>
+                        </button>
+                    </c-button-group>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>
+
+<c-modal #formModal
+    [scrollable]="true"
+    backdrop="static"
+    alignment="center"
+    id="formModal">
+    <c-modal-header>
+        <h5 cModalTitle>{{ modal.title }}</h5>
+        <button [cModalToggle]="formModal.id" cButtonClose [disabled]="isLoading"></button>
+    </c-modal-header>
+    <c-modal-body>
+        <!-- <c-callout color="warning">
+            By adding new Admin, you consent to being recorded as a reference for future interactions.
+            Default password will be set: <b>admin123</b>. You can change it later.
+        </c-callout>
+        <form cForm [formGroup]="userForm" novalidate disabled>
+            <fieldset cRow [disabled]="modal.type === 'detail'" [gutter]="1">
+                <c-col [md]="6" [cFormFloating]="true" *ngIf="userForm.controls['firstName'] as ctrl">
+                    <input cFormControl formControlName="firstName" id="firstName" placeholder="firstName" type="text"
+                        [autofocus]="true"
+                        [valid]="
+                            ctrl.touched && ctrl.valid
+                                ? true
+                                : (userFormSubmitted || ctrl.touched) && ctrl.invalid
+                                ? false
+                                : undefined
+                        "/>
+                    <label cLabel for="firstName">First Name</label>
+                    <c-form-feedback *ngIf="userFormSubmitted || ctrl.invalid" [valid]="!(userFormSubmitted || ctrl.invalid)">
+                        <ng-container *ngIf="ctrl.errors as errors">
+                            <div *ngIf="errors.required">First Name is required</div>
+                        </ng-container>
+                    </c-form-feedback>
+                </c-col>
+                <c-col [md]="6" [cFormFloating]="true" *ngIf="userForm.controls['lastName'] as ctrl">
+                    <input cFormControl formControlName="lastName" id="lastName" placeholder="lastName" type="text"
+                        [autofocus]="true"
+                        [valid]="
+                            ctrl.touched && ctrl.valid
+                                ? true
+                                : (userFormSubmitted || ctrl.touched) && ctrl.invalid
+                                ? false
+                                : undefined
+                        "/>
+                    <label cLabel for="lastName">Last Name</label>
+                    <c-form-feedback *ngIf="userFormSubmitted || ctrl.invalid" [valid]="!(userFormSubmitted || ctrl.invalid)">
+                        <ng-container *ngIf="ctrl.errors as errors">
+                            <div *ngIf="errors.required">Last Name is required</div>
+                        </ng-container>
+                    </c-form-feedback>
+                </c-col>
+                <c-col [md]="12" [cFormFloating]="true" *ngIf="userForm.controls['email'] as ctrl">
+                    <input cFormControl formControlName="email" id="email" placeholder="email" type="email"
+                        [autofocus]="true"
+                        [valid]="
+                            ctrl.touched && ctrl.valid
+                                ? true
+                                : (userFormSubmitted || ctrl.touched) && ctrl.invalid
+                                ? false
+                                : undefined
+                        "/>
+                    <label cLabel for="email">Email</label>
+                    <c-form-feedback *ngIf="userFormSubmitted || ctrl.invalid" [valid]="!(userFormSubmitted || ctrl.invalid)">
+                        <ng-container *ngIf="ctrl.errors as errors">
+                            <div *ngIf="errors.required">Email is required</div>
+                            <div *ngIf="errors.email">Invalid email</div>
+                        </ng-container>
+                    </c-form-feedback>
+                </c-col>
+            </fieldset>
+        </form> -->
+    </c-modal-body>
+    <c-modal-footer>
+        <button [cModalToggle]="formModal.id" (click)="reset('user')" cButton color="secondary" [disabled]="isLoading">
+            {{ modal.type === 'detail' ? 'Close' : 'Cancel' }}
+        </button>
+        <button cButton color="success" *ngIf="modal.type !== 'detail'" (click)="submit()" [disabled]="isLoading">
+            <c-spinner *ngIf="isLoading" aria-hidden="true" size="sm"></c-spinner>
+            Save
+        </button>
+    </c-modal-footer>
+</c-modal>
+
+<c-modal #deleteModal
+    backdrop="static"
+    alignment="center"
+    id="deleteModal">
+    <c-modal-header>
+        <h5 cModalTitle>{{ modal.title }}</h5>
+        <button [cModalToggle]="deleteModal.id" cButtonClose [disabled]="isLoading"></button>
+    </c-modal-header>
+    <c-modal-body>
+        Are you sure want to delete ?
+    </c-modal-body>
+    <c-modal-footer>
+        <button [cModalToggle]="deleteModal.id" cButton color="secondary">
+            Cancel
+        </button>
+        <button cButton color="danger" (click)="submit()" [disabled]="isLoading">
+            <c-spinner *ngIf="isLoading" aria-hidden="true" size="sm"></c-spinner>
+            Delete
+        </button>
+    </c-modal-footer>
+</c-modal>

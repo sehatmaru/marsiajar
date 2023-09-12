@@ -1,0 +1,288 @@
+<div style="margin-bottom: 10px;">
+    <c-card>
+        <c-card-header>Filter Exam Data</c-card-header>
+        <c-card-body>
+            <form cForm cRow [formGroup]="searchForm" novalidate [gutter]="3">
+                <c-col [md]="4" *ngIf="searchForm.controls['title'] as ctrl">
+                    <input cFormControl formControlName="title" placeholder="Title" id="title" type="text"/>
+                </c-col>
+                <c-col [md]="4" *ngIf="searchForm.controls['category'] as ctrl">
+                    <select cSelect formControlName="category" id="category">
+                        <option [defaultSelected]="true" value="">Category</option>
+                        <option *ngFor="let category of categories" [value]="category.secureId">{{ category.title }}</option>
+                      </select>
+                </c-col>
+                <c-col [md]="4" *ngIf="searchForm.controls['open'] as ctrl">
+                    <select cSelect formControlName="open" id="open">
+                        <option [defaultSelected]="true" value="">Availability</option>
+                        <option value="available">Available</option>
+                        <option value="unavailable">Unavailable</option>
+                      </select>
+                </c-col>
+            </form>
+        </c-card-body>
+        <c-card-footer style="display: flex; justify-content: space-between;">
+            <button cButton (click)="openModal('create')" color="primary" variant="ghost">Add New</button>
+            <div class="d-grid gap-2 d-md-flex">
+                <button cButton (click)="reset('search');" color="secondary" variant="outline" [disabled]="!searchFormSubmitted || isLoading">Clear</button>
+                <button cButton (click)="getList(); searchFormSubmitted = true" [disabled]="isLoading">Filter Data</button>
+            </div>
+        </c-card-footer>
+    </c-card>
+</div>
+<div>
+    <p-table
+        [value]="exams"
+        [paginator]="true"
+        [rows]="10"
+        [loading]="isLoading"
+        [showCurrentPageReport]="true"
+        [tableStyle]="{ 'min-width': '50rem' }"
+        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+        [rowsPerPageOptions]="[10, 25, 50]"
+    >
+        <ng-template pTemplate="header">
+            <tr>
+                <th>Title</th>
+                <th>Slot Status</th>
+                <th>Category</th>
+                <th>Create Time</th>
+                <th style="width:15%"></th>
+            </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-exam>
+            <tr>
+                <td>{{ exam.title }}</td>
+                <td>
+                    <c-badge *ngIf="exam.available" color="success" class="position-relative mx-2">
+                        Available
+                        <c-badge color="danger" position="top-end" shape="rounded-pill">{{ exam.availableSlot }}</c-badge>
+                        <span class="visually-hidden">available slot</span>
+                    </c-badge>
+                    <c-badge *ngIf="!exam.available" color="secondary">Unavailable</c-badge>
+                </td>
+                <td>{{ exam.category }}</td>
+                <td>{{ exam.createdAt | date }}</td>
+                <td>
+                    <c-button-group role="group">
+                        <button cButton (click)="openModal('update', exam)"
+                            cTooltip="Update" cTooltipTrigger="hover"
+                            color="primary" variant="outline">
+                            <svg [cIcon]="icons.cilPencil"
+                                title="Create"></svg>
+                        </button>
+                        <button cButton (click)="openModal('detail', exam)" 
+                            cTooltip="Detail" cTooltipTrigger="hover"
+                            color="info" variant="outline">
+                            <svg [cIcon]="icons.cilCursor"
+                                title="Detail"></svg>
+                        </button>
+                        <button cButton (click)="openModal('delete', exam)"
+                            cTooltip="Delete" cTooltipTrigger="hover"
+                            color="danger" variant="outline">
+                            <svg [cIcon]="icons.cilTrash"
+                                title="Delete"></svg>
+                        </button>
+                    </c-button-group>
+                </td>
+            </tr>
+        </ng-template>
+    </p-table>
+</div>
+
+<c-modal #formModal
+    [scrollable]="true"
+    [fullscreen]="modal.type != 'detail'"
+    backdrop="static"
+    alignment="center"
+    id="formModal">
+    <c-modal-header>
+        <h5 cModalTitle>{{ modal.title }}</h5>
+        <button [cModalToggle]="formModal.id" (click)="reset('exam')" cButtonClose [disabled]="isLoading"></button>
+    </c-modal-header>
+    <c-modal-body>
+        <div cRow>
+            <c-col [md]="modal.type === 'detail' ? 12 : 6">
+                <form cForm [formGroup]="examForm" novalidate class="needs-validation">
+                    <fieldset cRow [disabled]="modal.type === 'detail'" [gutter]="1">
+                        <c-col [cFormFloating]="true" [md]="modal.type === 'detail' ? 12 : 6" *ngIf="examForm.controls['title'] as ctrl">
+                            <input cFormControl formControlName="title" id="title" placeholder="title" type="text"
+                                [autofocus]="true"
+                                [valid]="
+                                    ctrl.touched && ctrl.valid
+                                        ? true
+                                        : (examFormSubmitted || ctrl.touched) && ctrl.invalid
+                                        ? false
+                                        : undefined
+                                "/>
+                            <label cLabel for="title">Title</label>
+                            <c-form-feedback *ngIf="examFormSubmitted || ctrl.invalid" [valid]="!(examFormSubmitted || ctrl.invalid)">
+                                <ng-container *ngIf="ctrl.errors as errors">
+                                    <div *ngIf="errors.required">Title is required</div>
+                                </ng-container>
+                            </c-form-feedback>
+                        </c-col>
+                        <c-col [cFormFloating]="true" [md]="12" *ngIf="modal.type == 'detail'">
+                            <input cFormControl formControlName="template" id="template" placeholder="Template" type="text"/>
+                            <label cLabel for="template">Template</label>
+                        </c-col>
+                        <c-col [cFormFloating]="true" [md]="modal.type === 'detail' ? 12 : 6" *ngIf="examForm.controls['participant'] as ctrl">
+                            <input cFormControl formControlName="participant" id="participant" placeholder="Participant" type="text"
+                                [autofocus]="true"
+                                [valid]="
+                                    ctrl.touched && ctrl.valid
+                                        ? true
+                                        : (examFormSubmitted || ctrl.touched) && ctrl.invalid
+                                        ? false
+                                        : undefined
+                                "/>
+                            <label cLabel for="participant">Participant</label>
+                            <c-form-feedback *ngIf="examFormSubmitted || ctrl.invalid" [valid]="!(examFormSubmitted || ctrl.invalid)">
+                                <ng-container *ngIf="ctrl.errors as errors">
+                                    <div *ngIf="errors.required">Participant is required</div>
+                                    <div *ngIf="errors.min">Participant must be > 0</div>
+                                </ng-container>
+                            </c-form-feedback>
+                        </c-col>
+                        <c-col [cFormFloating]="true" [md]="modal.type === 'detail' ? 12 : 6" *ngIf="examForm.controls['duration'] as ctrl">
+                            <input cFormControl formControlName="duration" id="duration" placeholder="Duration" type="number"
+                                [autofocus]="true"
+                                [valid]="
+                                    ctrl.touched && ctrl.valid
+                                        ? true
+                                        : (examFormSubmitted || ctrl.touched) && ctrl.invalid
+                                        ? false
+                                        : undefined
+                                "/>
+                            <label cLabel for="duration">Duration (minute)</label>
+                            <c-form-feedback *ngIf="examFormSubmitted || ctrl.invalid" [valid]="!(examFormSubmitted || ctrl.invalid)">
+                                <ng-container *ngIf="ctrl.errors as errors">
+                                    <div *ngIf="errors.required">Duration is required</div>
+                                    <div *ngIf="errors.min">Duration must be > 0</div>
+                                </ng-container>
+                            </c-form-feedback>
+                        </c-col>
+                        <c-col [md]="modal.type === 'detail' ? 12 : 6" [cFormFloating]="true" *ngIf="examForm.controls['open'] as ctrl">
+                            <select cSelect formControlName="open" id="open">
+                                <option value="available">Available</option>
+                                <option value="unavailable">Unavailable</option>
+                            </select>
+                            <label cLabel for="open">Availability</label>
+                            <c-form-feedback *ngIf="examFormSubmitted || ctrl.invalid" [valid]="!(examFormSubmitted || ctrl.invalid)">
+                                <ng-container *ngIf="ctrl.errors as errors">
+                                    <div *ngIf="errors.required">Availability is required</div>
+                                </ng-container>
+                            </c-form-feedback>
+                        </c-col>
+                        <c-col [md]="6" *ngIf="modal.type != 'detail' && examForm.controls['startTime'] as ctrl">
+                            <p-calendar formControlName="startTime" id="startTime"
+                                [showTime]="true" [readonlyInput]="true" placeholder="Start Time"
+                                [(ngModel)]="startTime"></p-calendar>
+                            <c-form-feedback *ngIf="examFormSubmitted || ctrl.invalid" [valid]="!(examFormSubmitted || ctrl.invalid)">
+                                <ng-container *ngIf="ctrl.errors as errors">
+                                    <div *ngIf="errors.required">Date Time is required</div>
+                                </ng-container>
+                            </c-form-feedback>
+                        </c-col>
+                        <c-col [md]="6" *ngIf="modal.type != 'detail' && examForm.controls['endTime'] as ctrl">
+                            <p-calendar formControlName="endTime" id="endTime" 
+                                [showTime]="true" [readonlyInput]="true" placeholder="End Time"
+                                [minDate]="startTime" [disabled]="!startTime" [(ngModel)]="endTime"></p-calendar>
+                            <c-form-feedback *ngIf="examFormSubmitted || ctrl.invalid" [valid]="!(examFormSubmitted || ctrl.invalid)">
+                                <ng-container *ngIf="ctrl.errors as errors">
+                                    <div *ngIf="errors.required">Date Time is required</div>
+                                </ng-container>
+                            </c-form-feedback>
+                        </c-col>
+                        <c-col [md]="modal.type === 'detail' ? 12 : 6" [cFormFloating]="true" *ngIf="examForm.controls['category'] as ctrl">
+                            <select cSelect formControlName="category" id="category">
+                                <option *ngFor="let category of categories" [value]="category.secureId">{{ category.title }}</option>
+                            </select>
+                            <label cLabel for="category">Category</label>
+                            <c-form-feedback *ngIf="examFormSubmitted || ctrl.invalid" [valid]="!(examFormSubmitted || ctrl.invalid)">
+                                <ng-container *ngIf="ctrl.errors as errors">
+                                    <div *ngIf="errors.required">Category is required</div>
+                                </ng-container>
+                            </c-form-feedback>
+                        </c-col>
+                        <c-col [cFormFloating]="true" [md]="12" *ngIf="modal.type == 'detail'">
+                            <input cFormControl formControlName="startTime" id="startTime" placeholder="Start Time" type="text"/>
+                            <label cLabel for="startTime">Start Time</label>
+                        </c-col>
+                        <c-col [cFormFloating]="true" [md]="12" *ngIf="modal.type == 'detail'">
+                            <input cFormControl formControlName="endTime" id="endTime" placeholder="End Time" type="text"/>
+                            <label cLabel for="endTime">End Time</label>
+                        </c-col>
+                    </fieldset>
+                </form>
+            </c-col>
+            <c-col [md]="6" [hidden]="modal.type === 'detail'">
+                <c-card [cBorder]="selectedTemplate ? 'success' : ''">
+                    <c-card-header>
+                        <h5>Choose Template</h5>
+                    </c-card-header>
+                    <c-card-body>
+                        <form [formGroup]="templateForm" style="margin-bottom: 10px;">
+                            <c-col [md]="12" *ngIf="templateForm.controls['name'] as ctrl">
+                                <input cFormControl formControlName="name" placeholder="Search" id="name" type="text"/>
+                            </c-col>
+                        </form>
+                        <c-row style="max-height: 500px; overflow: auto; cursor: pointer;" class="mb-3" [md]="1" [xs]="1">
+                            <c-col *ngFor="let item of filteredTemplateList; index as i"  (click)="selectTemplate(item)">
+                                <c-card [hidden]="!item.isSelected"
+                                    [color]="'success'"
+                                    [textColor]="'white'" 
+                                    class="mb-3">
+                                    <c-card-body>
+                                        <p cCardText>{{ item.name }}</p>
+                                    </c-card-body>
+                                </c-card>
+                                <c-card [hidden]="item.isSelected"
+                                    [cBorder]="'secondary'"
+                                    class="mb-3">
+                                    <c-card-body>
+                                        <p cCardText>{{ item.name }}</p>
+                                    </c-card-body>
+                                </c-card>
+                            </c-col>
+                        </c-row>
+                    </c-card-body>
+                    <c-card-footer [hidden]="selectedTemplate" [cBgColor]="'danger'">
+                        You must select template
+                    </c-card-footer>
+                </c-card>
+            </c-col>
+        </div>
+    </c-modal-body>
+    <c-modal-footer>
+        <button [cModalToggle]="formModal.id" (click)="reset('exam')" cButton color="secondary" [disabled]="isLoading">
+            {{ modal.type === 'detail' ? 'Close' : 'Cancel' }}
+        </button>
+        <button cButton color="success" *ngIf="modal.type !== 'detail'" (click)="submit()" [disabled]="isLoading || !selectedTemplate">
+            <c-spinner *ngIf="isLoading" aria-hidden="true" size="sm"></c-spinner>
+            Save
+        </button>
+    </c-modal-footer>
+</c-modal>
+
+<c-modal #deleteModal
+    backdrop="static"
+    alignment="center"
+    id="deleteModal">
+    <c-modal-header>
+        <h5 cModalTitle>{{ modal.title }}</h5>
+        <button [cModalToggle]="deleteModal.id" cButtonClose [disabled]="isLoading"></button>
+    </c-modal-header>
+    <c-modal-body>
+        Are you sure want to delete ?
+    </c-modal-body>
+    <c-modal-footer>
+        <button [cModalToggle]="deleteModal.id" cButton color="secondary">
+            Cancel
+        </button>
+        <button cButton color="danger" (click)="submit()" [disabled]="isLoading">
+            <c-spinner *ngIf="isLoading" aria-hidden="true" size="sm"></c-spinner>
+            Delete
+        </button>
+    </c-modal-footer>
+</c-modal>
