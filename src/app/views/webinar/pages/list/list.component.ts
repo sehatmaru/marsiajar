@@ -2,11 +2,11 @@ import { Component } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { ModalService } from '@coreui/angular';
 import { freeSet } from '@coreui/icons';
-import { StatusCode } from 'src/app/enum/status-code.enum';
-import { AddUpdateWebinarRequestModel, CategoryResponseModel, WebinarListResponseModel, WebinarResponseModel } from 'src/app/models/admin.model';
-import { AdminService } from 'src/app/services/admin.service';
-import { ValidationFormsService } from 'src/app/services/validation/validation-form.service';
-import { Utils } from 'src/app/utils/utils';
+import { StatusCode } from '../../../../enum/status-code.enum';
+import { ValidationFormsService } from '../../../../services/validation/validation-form.service';
+import { Utils } from '../../../../utils/utils';
+import { WebinarListResponseModel, CategoryResponseModel, WebinarResponseModel, AddUpdateWebinarRequestModel } from '../../../../models/admin.model';
+import { AdminService } from '../../../../services/admin.service';
 
 @Component({
   selector: 'app-list',

@@ -203,6 +203,8 @@ export class ExamListResponseModel {
     public categorySecureId = ''
     public template = ''
     public available = ''
+    public userSecureId = ''
+    public registered = false
     public availableSlot = 0
     public createdAt = new Date()
 }

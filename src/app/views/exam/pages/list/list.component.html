@@ -1,7 +1,7 @@
 <div style="margin-bottom: 10px;">
     <c-card>
-        <c-card-header>Filter Exam Data</c-card-header>
-        <c-card-body>
+        <c-card-header (click)="isVisible = !isVisible"  style="cursor: pointer;">Filter Exam Data</c-card-header>
+        <c-card-body cCollapse [visible]="isVisible">
             <form cForm cRow [formGroup]="searchForm" novalidate [gutter]="3">
                 <c-col [md]="4" *ngIf="searchForm.controls['title'] as ctrl">
                     <input cFormControl formControlName="title" placeholder="Title" id="title" type="text"/>
@@ -20,74 +20,43 @@
                     </select>
                 </c-col>
             </form>
-        </c-card-body>
-        <c-card-footer style="display: flex; justify-content: space-between;">
-            <button cButton (click)="openModal('create')" color="primary" variant="ghost">Add New</button>
-            <div class="d-grid gap-2 d-md-flex">
-                <button cButton (click)="reset('search');" color="secondary" variant="outline" [disabled]="!searchFormSubmitted || isLoading">Clear</button>
-                <button cButton (click)="getList(); searchFormSubmitted = true" [disabled]="isLoading">Filter Data</button>
+
+            <div style="display: flex; justify-content: space-between;" class="mt-2">
+                <a href=""></a>
+                <div class="d-grid gap-2 d-md-flex">
+                    <button cButton (click)="reset('search');" color="secondary" variant="outline" [disabled]="!searchFormSubmitted || isLoading">Clear</button>
+                    <button cButton (click)="getList(); searchFormSubmitted = true" [disabled]="isLoading">Filter Data</button>
+                </div>
             </div>
-        </c-card-footer>
+        </c-card-body>
     </c-card>
 </div>
-<div>
-    <p-table
-        [value]="exams"
-        [paginator]="true"
-        [rows]="10"
-        [loading]="isLoading"
-        [showCurrentPageReport]="true"
-        [tableStyle]="{ 'min-width': '50rem' }"
-        currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
-        [rowsPerPageOptions]="[10, 25, 50]"
-    >
-        <ng-template pTemplate="header">
-            <tr>
-                <th>Title</th>
-                <th>Slot Status</th>
-                <th>Category</th>
-                <th>Create Time</th>
-                <th style="width:15%"></th>
-            </tr>
-        </ng-template>
-        <ng-template pTemplate="body" let-exam>
-            <tr>
-                <td>{{ exam.title }}</td>
-                <td>
-                    <c-badge *ngIf="exam.available" color="success" class="position-relative mx-2">
-                        Available
-                        <c-badge color="danger" position="top-end" shape="rounded-pill">{{ exam.availableSlot }}</c-badge>
-                        <span class="visually-hidden">available slot</span>
-                    </c-badge>
-                    <c-badge *ngIf="!exam.available" color="secondary">Unavailable</c-badge>
-                </td>
-                <td>{{ exam.category }}</td>
-                <td>{{ exam.createdAt | date }}</td>
-                <td>
-                    <c-button-group role="group">
-                        <button cButton (click)="openModal('update', exam)"
-                            cTooltip="Update" cTooltipTrigger="hover"
-                            color="primary" variant="outline">
-                            <svg [cIcon]="icons.cilPencil"
-                                title="Create"></svg>
-                        </button>
-                        <button cButton (click)="openModal('detail', exam)" 
-                            cTooltip="Detail" cTooltipTrigger="hover"
-                            color="info" variant="outline">
-                            <svg [cIcon]="icons.cilCursor"
-                                title="Detail"></svg>
-                        </button>
-                        <button cButton (click)="openModal('delete', exam)"
-                            cTooltip="Delete" cTooltipTrigger="hover"
-                            color="danger" variant="outline">
-                            <svg [cIcon]="icons.cilTrash"
-                                title="Delete"></svg>
-                        </button>
-                    </c-button-group>
-                </td>
-            </tr>
-        </ng-template>
-    </p-table>
+<div cRow>
+    <c-col [lg]="12"> 
+        <c-alert color="success">
+            <h4 cAlertHeading>Well done!</h4>
+            <p>Your hard work has paid off, and you've successfully completed all the exams you registered for. This is a testament to your dedication and commitment to your education. Keep up the excellent work!</p>
+            <hr/>
+            <p class="mb-0">Whenever you need to, be sure to use margin utilities to keep things nice and tidy.</p>
+        </c-alert>
+    </c-col>
+    <c-col *ngFor="let exam of exams" [lg]="4">
+        <c-card [cBorder]="{top: {color: exam.statusColor, width: 3}}"  class="mb-3 rounded-4">
+            <c-card-header>
+                <c-badge *ngIf="exam.available" [color]="exam.statusColor" class="position-relative mx-2">
+                    {{ exam.status }}
+                    <span class="visually-hidden">available slot</span>
+                </c-badge>
+            </c-card-header>
+            <c-card-body>
+                <h5 cCardTitle>{{exam.title}}</h5>
+                <p cCardText>
+                    {{ exam.startTime | date : 'shortDate' }} - {{ exam.endTime | date : 'shortDate' }}
+                </p>
+                <button color="success" cButton>Start Exam</button>
+            </c-card-body>
+        </c-card>
+    </c-col>
 </div>
 
 <c-modal #formModal

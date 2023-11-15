@@ -2,11 +2,14 @@ import { Component } from '@angular/core';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { ModalService } from '@coreui/angular';
 import { freeSet } from '@coreui/icons';
-import { StatusCode } from 'src/app/enum/status-code.enum';
-import { AddUpdateExamRequestModel, CategoryResponseModel, ExamListResponseModel, ExamResponseModel, TemplateResponseModel } from 'src/app/models/admin.model';
-import { AdminService } from 'src/app/services/admin.service';
-import { ValidationFormsService } from 'src/app/services/validation/validation-form.service';
-import { Utils } from 'src/app/utils/utils';
+import { StatusCode } from '../../../../enum/status-code.enum';
+import { CategoryResponseModel, TemplateResponseModel, ExamResponseModel, AddUpdateExamRequestModel } from '../../../../models/admin.model';
+import { AdminService } from '../../../../services/admin.service';
+import { ValidationFormsService } from '../../../../services/validation/validation-form.service';
+import { Utils } from '../../../../utils/utils';
+import { CommonService } from '../../../../services/common.service';
+import { ExamService } from '../../../../services/exam.service';
+import { ExamListResponseModel } from '../../../../models/exam.model';
 
 @Component({
   selector: 'app-list',
@@ -21,6 +24,7 @@ export class ListComponent {
   public filteredTemplateList: TemplateResponseModel[] = []
   public isLoading = false
   public isValid = false
+  public isVisible = false
 
   public searchForm!: FormGroup;
   public searchFormSubmitted = false;
@@ -52,6 +56,8 @@ export class ListComponent {
 
   constructor(
     private adminService: AdminService,
+    private commonService: CommonService,
+    private examService: ExamService,
     private utils: Utils,
     private formBuilder: FormBuilder,
     private validationService: ValidationFormsService,
@@ -112,7 +118,7 @@ export class ListComponent {
     const category = this.searchForm.get('category')?.value
     const status = this.searchForm.get('open')?.value
 
-    this.adminService.getExamList(title, category, status).subscribe({
+    this.examService.getList(title, category).subscribe({
       next: (resp) => {
         if (resp.statusCode == StatusCode.SUCCESS) {
           this.exams = resp.result
@@ -132,9 +138,7 @@ export class ListComponent {
   getCategoryList() {
     this.isLoading = true
 
-    const title = this.searchForm.get('category')?.value
-
-    this.adminService.getCategoryList(title).subscribe({
+    this.commonService.getCategoryList().subscribe({
       next: (resp) => {
         if (resp.statusCode == StatusCode.SUCCESS) {
           this.categories = resp.result

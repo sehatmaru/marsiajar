@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common';
 import { ListComponent } from './pages/list/list.component';
 
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
-import { ButtonModule, DropdownModule, ModalModule, FormModule, GridModule, AccordionModule, CardModule, SpinnerModule, ButtonGroupModule, TooltipModule, BadgeModule, UtilitiesModule } from '@coreui/angular';
+import { ButtonModule, DropdownModule, ModalModule, FormModule, GridModule, AccordionModule, CardModule, SpinnerModule, ButtonGroupModule, TooltipModule, BadgeModule, UtilitiesModule, CollapseModule, AlertModule } from '@coreui/angular';
 import { TableModule } from 'primeng/table';
 import { IconModule } from '@coreui/icons-angular';
 import { ExamRoutingModule } from './exam-routing.module';
@@ -33,7 +33,9 @@ import { CalendarModule } from 'primeng/calendar';
     TooltipModule,
     BadgeModule,
     CalendarModule,
-    UtilitiesModule
+    UtilitiesModule,
+    CollapseModule,
+    AlertModule
   ]
 })
 export class ExamModule { }

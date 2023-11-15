@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { ChangePasswordRequestModel, EditProfileRequestModel, ForgotPasswordRequestModel, LoginRequestModel, LoginResponseModel, RegisterRequestModel, RegisterResponseModel, ResetPasswordRequestModel, VerifyOtpRequestModel } from '../models/auth.model';
 import { CommonResponsei } from '../interface/common.interface';
-import { CommonService } from './common.service';
+import { Service } from './service';
 
 @Injectable({
   providedIn: 'root'
@@ -10,7 +10,7 @@ import { CommonService } from './common.service';
 export class AuthService {
 
   private root = 'auth';
-  constructor(private commonApi: CommonService) { }
+  constructor(private commonApi: Service) { }
 
   doLogin(bodyRequest: LoginRequestModel): Observable<CommonResponsei<LoginResponseModel>> {
     return this.commonApi.post(`${this.root}/login/consumer`, bodyRequest) as Observable<any>;

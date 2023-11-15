@@ -1,9 +1,9 @@
 import { Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 import { CommonResponsei } from '../interface/common.interface';
-import { CommonService } from './common.service';
 import { RoleEnum } from '../enum/role.enum';
 import { AddUpdateAdminRequestModel, AddUpdateBenefitRequestModel, AddUpdateCategoryRequestModel, AddUpdateCourseRequestModel, AddUpdateExamRequestModel, AddUpdateQuestionRequestModel, AddUpdateTemplateRequestModel, AddUpdateWebinarRequestModel, BenefitResponseModel, CategoryResponseModel, CourseResponseModel, ExamListResponseModel, ExamResponseModel, InvoiceListRequestModel, InvoiceListResponseModel, QuestionResponseModel, TemplateResponseModel, UpdateUserRequestModel, UserRequestModel, UserResponseModel, WebinarResponseModel } from '../models/admin.model';
+import { Service } from './service';
 
 @Injectable({
   providedIn: 'root'
@@ -21,7 +21,7 @@ export class AdminService {
   private INVOICE = 'invoice';
   private CATEGORY = 'category';
   
-  constructor(private commonApi: CommonService) { }
+  constructor(private commonApi: Service) { }
 
   getUserList(role: RoleEnum, requestBody: UserRequestModel): Observable<CommonResponsei<UserResponseModel[]>> {
     const params = 'role=' + RoleEnum[role]
