@@ -1,3 +1,5 @@
+import { RoleEnum } from "../enum/role.enum"
+
 export class LoginRequestModel {
     public email = ''
     public password = ''
@@ -17,6 +19,7 @@ export class RegisterRequestModel {
     public email = ''
     public firstName = ''
     public lastName = ''
+    public role = RoleEnum.LEARNER
 }
 
 export class RegisterResponseModel {

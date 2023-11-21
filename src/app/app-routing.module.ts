@@ -26,24 +26,6 @@ const routes: Routes = [
           import('./views/dashboard/dashboard.module').then((m) => m.DashboardModule)
       },
       {
-        path: 'webinar',
-        canActivate: [ProfileGuardService],
-        loadChildren: () =>
-          import('./views/webinar/webinar.module').then((m) => m.WebinarModule)
-      },
-      {
-        path: 'course',
-        canActivate: [ProfileGuardService],
-        loadChildren: () =>
-          import('./views/course/course.module').then((m) => m.CourseModule)
-      },
-      {
-        path: 'invoice',
-        canActivate: [ProfileGuardService],
-        loadChildren: () =>
-          import('./views/invoice/invoice.module').then((m) => m.InvoiceModule)
-      },
-      {
         path: 'exam',
         canActivate: [ProfileGuardService],
         loadChildren: () =>

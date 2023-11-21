@@ -32,3 +32,18 @@ export class ExamTncResponseModel {
     public duration = 0
     public timeLeft = ''
 }
+
+export class ExamResponseModel {
+    public secureId = ''
+    public title = ''
+    public template = ''
+    public available = ''
+    public category = ''
+    public categorySecureId = ''
+    public availableSlot = 0
+    public totalSlot = 0
+    public duration = 0
+    public startAt = new Date()
+    public endAt = new Date()
+    public createdAt = new Date()
+}

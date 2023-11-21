@@ -1,4 +1,4 @@
 export enum RoleEnum {
-  CONSUMER,
-  ADMIN
+  LECTURER,
+  LEARNER
 }

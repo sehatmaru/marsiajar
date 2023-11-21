@@ -4,3 +4,10 @@ export class CategoryModel {
     public updatedAt = new Date()
     public secureId = ''
 }
+
+export class CategoryResponseModel {
+    public secureId = ''
+    public title = ''
+    public createdAt = new Date()
+    public updatedAt = new Date()
+}
