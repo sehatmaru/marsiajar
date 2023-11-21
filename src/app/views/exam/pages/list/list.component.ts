@@ -9,7 +9,7 @@ import { ValidationFormsService } from '../../../../services/validation/validati
 import { Utils } from '../../../../utils/utils';
 import { CommonService } from '../../../../services/common.service';
 import { ExamService } from '../../../../services/exam.service';
-import { ExamListResponseModel } from '../../../../models/exam.model';
+import { ExamListResponseModel, ExamTncResponseModel } from '../../../../models/exam.model';
 
 @Component({
   selector: 'app-list',
@@ -41,6 +41,7 @@ export class ListComponent {
   public formErrors: any;
 
   public currentData = new ExamResponseModel()
+  public currentExamTnc = new ExamTncResponseModel()
 
   public startTime: any
   public endTime: any
@@ -90,7 +91,7 @@ export class ListComponent {
       {
         title: [""],
         category: [""],
-        open: [""]
+        open: ["available"]
       }
     );
 
@@ -118,7 +119,7 @@ export class ListComponent {
     const category = this.searchForm.get('category')?.value
     const status = this.searchForm.get('open')?.value
 
-    this.examService.getList(title, category).subscribe({
+    this.examService.getList(title, category, status).subscribe({
       next: (resp) => {
         if (resp.statusCode == StatusCode.SUCCESS) {
           this.exams = resp.result
@@ -258,6 +259,42 @@ export class ListComponent {
     });
   }
 
+  getExamTnc(secureId: string) {
+    this.isLoading = true
+    
+    this.examService.getExamTnc(secureId).subscribe({
+      next: (resp) => {
+        if (resp.statusCode == StatusCode.SUCCESS) {
+          this.currentExamTnc = resp.result
+        } 
+        
+        this.isLoading = false
+      },
+      error: (error) => {
+        this.utils.error(error.message)
+      }
+    });
+  }
+
+  applyExam(secureId: string) {
+    this.isLoading = true
+    
+    this.examService.applyExam(secureId).subscribe({
+      next: (resp) => {
+        if (resp.statusCode == StatusCode.SUCCESS) {
+          this.modalService.toggle({id: 'formModal', show: false})
+          this.getList()
+        } 
+        
+        this.utils.toast(resp.message, resp.statusCode)
+        this.isLoading = false
+      },
+      error: (error) => {
+        this.utils.error(error.message)
+      }
+    });
+  }
+
   getTemplateList() {
     const name = this.templateForm.get('name')?.value
 
@@ -311,17 +348,18 @@ export class ListComponent {
       this.examForm.reset()
     } else if (type === 'search') {
       this.searchFormSubmitted = false;
+      this.searchForm.get("open")?.setValue("")
       this.getList()
     }
   }
 
   submit() {
-    if (this.modal.type === 'delete') {
-      this.deleteExam()
-    } else {
-      if (this.validate('exam')) {
-        this.modal.type === 'create' ? this.saveExam() : this.updateExam()
-      }
+    switch(this.modal.type) {
+      case 'register' :
+        this.applyExam(this.currentExamTnc.secureId)
+        break
+      case 'unregister' : 
+        break
     }
   }
 
@@ -331,10 +369,10 @@ export class ListComponent {
     data = data == null ? new ExamListResponseModel() : data
 
     switch(type) {
-      case 'create' : {
-        this.modal.title = 'Add New Exam'
+      case 'register' : {
+        this.modal.title = 'Exam Registration'
         this.modalService.toggle({id: 'formModal', show: true})
-        this.getTemplateList();
+        this.getExamTnc(data.secureId)
         break
       }
       case 'update' : {
