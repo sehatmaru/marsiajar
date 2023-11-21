@@ -27,7 +27,6 @@ export class AdminService {
     const params = 'role=' + RoleEnum[role]
       + '&name=' + requestBody.name
       + '&email=' + requestBody.email
-      + '&registrationType=' + requestBody.type
       + '&status=' + requestBody.active
 
     return this.commonApi.get(`${this.root}/${this.USER}/list?${params}`) as Observable<CommonResponsei<UserResponseModel[]>>;

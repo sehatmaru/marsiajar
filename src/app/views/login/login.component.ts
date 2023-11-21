@@ -5,7 +5,6 @@ import { LoginRequestModel } from '../../models/auth.model';
 import { AuthService } from '../../services/auth.service';
 import { StorageService } from '../../services/storage.service';
 import { Utils } from '../../utils/utils';
-import { RegisterTypeEnum } from '../../enum/register-type.enum';
 
 @Component({
   selector: 'app-login',
@@ -35,7 +34,6 @@ export class LoginComponent {
     const bodyRequest = new LoginRequestModel()
     bodyRequest.password = this.password
     bodyRequest.email = this.email
-    bodyRequest.type = RegisterTypeEnum.EMAIL.toString();
 
     this.authService.doLogin(bodyRequest).subscribe({
       next: (resp) => {

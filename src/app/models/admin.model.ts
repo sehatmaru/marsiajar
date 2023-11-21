@@ -1,5 +1,3 @@
-import { RegisterTypeEnum } from "../enum/register-type.enum"
-
 export class UserResponseModel {
     public gender = ''
     public email = ''
@@ -14,7 +12,6 @@ export class UserRequestModel {
     public gender = ''
     public email = ''
     public active = false
-    public type = RegisterTypeEnum.EMAIL
 }
 
 export class UpdateUserRequestModel {

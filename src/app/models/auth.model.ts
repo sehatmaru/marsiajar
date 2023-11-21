@@ -1,7 +1,6 @@
 export class LoginRequestModel {
     public email = ''
     public password = ''
-    public type = ''
 }
 
 export class LoginResponseModel {
