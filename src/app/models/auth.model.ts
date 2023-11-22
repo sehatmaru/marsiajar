@@ -3,6 +3,7 @@ import { RoleEnum } from "../enum/role.enum"
 export class LoginRequestModel {
     public email = ''
     public password = ''
+    public role = RoleEnum.LEARNER
 }
 
 export class LoginResponseModel {
